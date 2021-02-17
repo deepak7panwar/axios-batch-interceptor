@@ -17,14 +17,19 @@ interface IFilteredResponse {
   list: string[];
   resultMap: IResponseIdMap;
 }
+const BATCH_URL = 'file-batch-api';
 const batchInterceptor = (instance: AxiosInstance): void => {
   instance.interceptors.request.use(
     async (request: AxiosRequestConfig) => {
       // Add your code here
-      throw new BatchCallResponseAsError(
-        request,
-        BatchHandler.updateBatch(request.params.ids),
-      );
+      if (request.url.includes(BATCH_URL)) {
+        throw new BatchCallResponseAsError(
+          request,
+          BatchHandler.updateBatch(request.params.ids),
+        );
+      } else {
+        return request;
+      }
     },
     async (error: AxiosError) => {
       await Promise.reject(error);
